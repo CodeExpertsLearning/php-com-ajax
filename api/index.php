@@ -10,18 +10,27 @@ if($uri == '/emails' && $methodHTTP == 'GET') {
     $emails = file_get_contents($emails);
     $emails = explode('|', $emails);
 
-    http_response_code(200);
-    header('Content-Type: application/json');
-    echo json_encode($emails);
+    echo response($emails);
 }
 
 if($uri == '/emails' && $methodHTTP == 'POST') {
+    
+    // $email = $_POST['email'];
+    $email = json_decode(file_get_contents('php://input'), true)['email'];
 
-    $email = $_POST['email'];
+    //TO-DO: sanitizar e validar... PHP FILTERS VALIDATE API
 
-    file_put_contents($emails, '|' . $email);
+    file_put_contents($emails, '|' . $email, FILE_APPEND);
 
-    http_response_code(200);
+    echo response([], 201);
+}
+
+function response($body, $statusCode = 200) {
+    
+    header('Access-Control-Allow-Origin: *');
     header('Content-Type: application/json');
-    echo json_encode(['salvar email...']);
+
+    http_response_code($statusCode);
+
+    return json_encode($body);
 }
